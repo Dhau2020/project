@@ -1,0 +1,83 @@
+# Telegraf Configuration
+
+# Global tags can be specified here and then referenced in input and output plugins.
+
+[global_tags]
+
+  # For example, to tag all metrics with the environment name:
+
+  # environment = "production"
+
+# Configuration for telegraf agent
+
+[agent]
+
+  # Interval at which to gather and send metrics in seconds.
+
+  interval = "10s"
+
+  # Round interval to 'interval' seconds.
+
+  round_interval = true
+
+  # Telegraf will send metrics to outputs in batches of at most
+
+  # metric_batch_size metrics.
+
+  metric_batch_size = 1000
+
+  # Telegraf will send metrics to outputs at least
+
+  # once per flush_interval.
+
+  flush_interval = "10s"
+
+  # If set to true, Telegraf will log metrics to stdout instead of the
+
+  # configured outputs.
+
+  debug = false
+
+  # Run telegraf in quiet mode (error log messages only).
+
+  quiet = false
+
+# Configuration for input plugins
+
+[[inputs.cpu]]
+
+  # no configuration parameters
+
+[[inputs.disk]]
+
+  # no configuration parameters
+
+[[inputs.mem]]
+
+  # no configuration parameters
+
+# Configuration for output plugins
+
+[[outputs.influxdb]]
+
+  # URL of the InfluxDB instance
+
+  urls = ["http://localhost:8086"]
+
+  # Name of the target database
+
+  database = "telegraf"
+
+  # Optional username and password for authentication
+
+  # username = "myuser"
+
+  # password = "mypassword"
+
+  # Optional HTTP headers
+
+  # http_headers = {"X-Special-Header" = "Special-Value"}
+
+  # Insecure skip-verify for self-signed certificates
+
+  # insecure_skip_verify = false
