@@ -9,7 +9,6 @@
         line: 'AllowUsers <comma-separated-IP-ranges>'
         state: present
 
-
     - name: Install ICMP ping utility
       apt:
         name: fping
@@ -19,15 +18,18 @@
       apt:
         name: snmpd
         state: present
+
     - name: Create SNMPd directory
       become: yes
       file:
         path: /etc/snmpd
         state: directory
+
     - name: Copy SNMP configuration file
       copy:
         src: snmpd.conf.j2
         dest: /etc/snmpd/snmpd.conf
+
 - name: Install Telegraf and Grafana
   hosts: BASTION
   become: yes
@@ -65,7 +67,6 @@
         name: grafana
         state: present
 
-
     - name: Copy Telegraf configuration file
       copy:
         src: telegraf.conf.j2
@@ -74,12 +75,8 @@
         - restart telegraf
 
   handlers:
-    - name: restart sshd
-      service:
-        name: ssh
-        state: restarted
+    - name: restart ssh
+      command: service ssh restart
 
     - name: restart telegraf
-      service:
-        name: telegraf
-        state: restarted
+      command: service telegraf restart
