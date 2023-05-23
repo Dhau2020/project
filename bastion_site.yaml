@@ -1,0 +1,85 @@
+- name: Configuring BASTION host
+  hosts: BASTION
+  become: yes
+  tasks:
+    - name: Allow SSH access from specific IP ranges
+      lineinfile:
+        dest: /etc/ssh/ssh_config
+        regexp: '^#?AllowUsers'
+        line: 'AllowUsers <comma-separated-IP-ranges>'
+        state: present
+
+
+    - name: Install ICMP ping utility
+      apt:
+        name: fping
+        state: present
+
+    - name: Install SNMP daemon
+      apt:
+        name: snmpd
+        state: present
+    - name: Create SNMPd directory
+      become: yes
+      file:
+        path: /etc/snmpd
+        state: directory
+    - name: Copy SNMP configuration file
+      copy:
+        src: snmpd.conf.j2
+        dest: /etc/snmpd/snmpd.conf
+- name: Install Telegraf and Grafana
+  hosts: BASTION
+  become: yes
+  tasks:
+    - name: Import InfluxData repository GPG key
+      shell: apt-key adv --keyserver keyserver.ubuntu.com --recv-keys D8FF8E1F7DF8B07E
+      changed_when: false
+
+    - name: Add InfluxData repository for Telegraf
+      apt_repository:
+        repo: "deb https://repos.influxdata.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
+        state: present
+
+    - name: Import Grafana repository GPG key
+      shell: wget -q -O - https://packages.grafana.com/gpg.key | apt-key add -
+      changed_when: false
+
+    - name: Add Grafana repository
+      apt_repository:
+        repo: "deb https://packages.grafana.com/oss/deb stable main"
+        state: present
+        filename: grafana
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Telegraf
+      apt:
+        name: telegraf
+        state: present
+
+    - name: Install Grafana
+      apt:
+        name: grafana
+        state: present
+
+
+    - name: Copy Telegraf configuration file
+      copy:
+        src: telegraf.conf.j2
+        dest: /etc/telegraf/telegraf.conf
+      notify:
+        - restart telegraf
+
+  handlers:
+    - name: restart sshd
+      service:
+        name: ssh
+        state: restarted
+
+    - name: restart telegraf
+      service:
+        name: telegraf
+        state: restarted
